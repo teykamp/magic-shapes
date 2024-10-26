@@ -25,7 +25,6 @@ const animation = {
   xOffset: 500,
   yOffset: 500,
   scale: 1.5,
-  color: "#FF0000",
   loop: true,
 }
 const animation2 = {
@@ -47,13 +46,7 @@ onMounted(() => {
         radius: 100,
         color: "#0000FF",
       });
-      const y = animate(animation2)((options) => {
-        drawShape(ctx).drawCircle(options);
-      })({
-        at: { x: 500, y: 200 },
-        radius: 20,
-        color: "#FFFFFF"
-      });
+      
 
       setTimeout(() => {
         x.pauseAnimation()
@@ -61,6 +54,12 @@ onMounted(() => {
       setTimeout(() => {
         x.restartAnimation()
       }, 2000);
+      setTimeout(() => {
+        x.pauseAnimation()
+      }, 5000);
+      setTimeout(() => {
+        x.restartAnimation()
+      }, 7000);
 
       const drawLoop = setInterval(() => {
         ctx.clearRect(0, 0, canvas.value.width, canvas.value.height)
