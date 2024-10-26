@@ -19,19 +19,22 @@ const canvas = ref<HTMLCanvasElement | null>(null);
 
 const { width, height } = useWindowSize();
 
+const animation = {
+  ease: "in-out",
+  duration: 2000,
+  xOffset: 500,
+  yOffset: 500,
+  scale: 1.5,
+  color: "#FF0000",
+  loop: true,
+}
+
 onMounted(() => {
   if (canvas.value) {
 
     const ctx = canvas.value.getContext('2d');
     if (ctx) {
-      animate({
-        ease: "in-out",
-        duration: 5000,
-        xOffset: 500,
-        yOffset: 500,
-        scale: 1.5, 
-        color: "#FF0000"
-      })((options) => {
+      animate(animation)((options) => {
         drawShape(ctx).drawCircle(options);
       })({
         at: { x: 100, y: 100 },

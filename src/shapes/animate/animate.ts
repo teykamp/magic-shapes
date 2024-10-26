@@ -2,8 +2,10 @@ import type { ShapeAnimation } from '../types'
 import { ANIMATION_DEFAULTS } from '../types'
 import { hexToRgb, easeFunction, interpolateColor } from '../helpers'
 
+
 export const animate = (animation: ShapeAnimation) => (drawFunction: (options: any) => void) => (initialOptions: any) => {
   let startTime: number | null = null;
+  let isReversing = false;
   const startColor = hexToRgb(initialOptions.color);
   const endColor = animation.color ? hexToRgb(animation.color) : startColor;
 
@@ -11,11 +13,12 @@ export const animate = (animation: ShapeAnimation) => (drawFunction: (options: a
     duration,
     xOffset,
     yOffset,
-    scale
+    scale,
+    loop
   } = {
     ...ANIMATION_DEFAULTS,
     ...animation
-  }
+  };
 
   const animateFrame = (timestamp: number) => {
     if (startTime === null) startTime = timestamp;
@@ -23,11 +26,16 @@ export const animate = (animation: ShapeAnimation) => (drawFunction: (options: a
     const progress = duration === 0 ? 1 : Math.min(elapsed / duration, 1);
     const easedProgress = easeFunction(progress, animation.ease);
 
-    const newX = initialOptions.at.x + xOffset * easedProgress;
-    const newY = initialOptions.at.y + yOffset * easedProgress;
-    const newRadius = initialOptions.radius * (1 + (scale - 1) * easedProgress);
-    const newColor = interpolateColor(startColor, endColor, easedProgress);
+  
+    const currentProgress = isReversing ? 1 - easedProgress : easedProgress;
 
+  
+    const newX = initialOptions.at.x + xOffset * currentProgress;
+    const newY = initialOptions.at.y + yOffset * currentProgress;
+    const newRadius = initialOptions.radius * (1 + (scale - 1) * currentProgress);
+    const newColor = interpolateColor(startColor, endColor, currentProgress);
+
+  
     drawFunction({
       at: { x: newX, y: newY },
       radius: newRadius,
@@ -35,8 +43,21 @@ export const animate = (animation: ShapeAnimation) => (drawFunction: (options: a
     });
 
     if (progress < 1) {
+    
+      requestAnimationFrame(animateFrame);
+    } else if (!isReversing && loop) {
+    
+      isReversing = true;
+      startTime = null;
+      requestAnimationFrame(animateFrame);
+    } else if (isReversing && loop) {
+    
+      isReversing = false;
+      startTime = null;
       requestAnimationFrame(animateFrame);
     }
-  }
+  };
+
+
   requestAnimationFrame(animateFrame);
 };
