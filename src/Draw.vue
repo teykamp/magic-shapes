@@ -55,6 +55,13 @@ onMounted(() => {
         color: "#FFFFFF"
       });
 
+      setTimeout(() => {
+        x.pauseAnimation()
+      }, 1000);
+      setTimeout(() => {
+        x.restartAnimation()
+      }, 2000);
+
       const drawLoop = setInterval(() => {
         ctx.clearRect(0, 0, canvas.value.width, canvas.value.height)
       }, 1000 / 60)

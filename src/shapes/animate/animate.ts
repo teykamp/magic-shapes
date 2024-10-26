@@ -1,12 +1,16 @@
 import type { ShapeAnimation } from '../types'
 import { ANIMATION_DEFAULTS } from '../types'
 import { hexToRgb, easeFunction, interpolateColor } from '../helpers'
+import { ref } from 'vue'
 
 
 export const animate = (animation: ShapeAnimation) => {
-  let animationFrameId: number | null = null
-  let startTime: number | null = null
-  let isReversing = false
+  const animationFrameId = ref <number | null>(null)
+  const startTime = ref <number | null>(null)
+  const isReversing = ref(false)
+  const paused = ref(false)
+  const pausedProgress = ref(0)
+
 
   return (drawFunction: (options: any) => void) => (initialOptions: any) => {
     const startColor = hexToRgb(initialOptions.color)
@@ -24,19 +28,33 @@ export const animate = (animation: ShapeAnimation) => {
     }
 
     const stopAnimation = () => {
-      if (animationFrameId !== null) {
-        cancelAnimationFrame(animationFrameId)
-        animationFrameId = null
+      if (animationFrameId.value !== null) {
+        cancelAnimationFrame(animationFrameId.value)
+        animationFrameId.value = null
+      }
+    }
+// pausing only pauses drawing doesnt pause animation
+    const pauseAnimation = () => {
+      if (animationFrameId.value !== null) {
+        paused.value = true
+        stopAnimation()
       }
     }
 
+    const restartAnimation = () => {
+      paused.value = false
+      stopAnimation();
+      animationFrameId.value = requestAnimationFrame(animateFrame);
+    }
+
     const animateFrame = (timestamp: number) => {
-      if (startTime === null) startTime = timestamp
-      const elapsed = timestamp - startTime
+      if (startTime.value === null) startTime.value = timestamp
+
+      const elapsed = timestamp - startTime.value
       const progress = duration === 0 ? 1 : Math.min(elapsed / duration, 1)
       const easedProgress = easeFunction(progress, animation.ease)
 
-      const currentProgress = isReversing ? 1 - easedProgress : easedProgress
+      const currentProgress = isReversing.value ? 1 - easedProgress : easedProgress
 
       // circles only
       const newX = initialOptions.at.x + xOffset * currentProgress
@@ -53,22 +71,26 @@ export const animate = (animation: ShapeAnimation) => {
       // end circles only
 
       if (progress < 1) {
-        animationFrameId = requestAnimationFrame(animateFrame)
-      } else if (!isReversing && loop) {
-        isReversing = true
-        startTime = null 
-        animationFrameId = requestAnimationFrame(animateFrame)
-      } else if (isReversing && loop) {
-        isReversing = false
-        startTime = null 
-        animationFrameId = requestAnimationFrame(animateFrame)
+        animationFrameId.value = requestAnimationFrame(animateFrame)
+      } else if (!isReversing.value && loop) {
+        isReversing.value = true
+        startTime.value = null 
+        animationFrameId.value = requestAnimationFrame(animateFrame)
+      } else if (isReversing.value && loop) {
+        isReversing.value = false
+        startTime.value = null 
+        animationFrameId.value = requestAnimationFrame(animateFrame)
       }
     }
 
     stopAnimation()
 
-    animationFrameId = requestAnimationFrame(animateFrame)
+    animationFrameId.value = requestAnimationFrame(animateFrame)
 
-    return stopAnimation
+    return {
+      stopAnimation,
+      pauseAnimation,
+      restartAnimation
+    }
   }
 }
