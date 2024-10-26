@@ -1,7 +1,11 @@
+import { ref } from 'vue'
 import type { ShapeAnimation } from '../types'
 import { ANIMATION_DEFAULTS } from '../types'
-import { hexToRgb, easeFunction, interpolateColor } from '../helpers'
-import { ref } from 'vue'
+import { 
+  hexToRgb, 
+  easeFunction, 
+  interpolateColor 
+} from '../helpers'
 
 
 export const animate = (animation: ShapeAnimation) => {
