@@ -1,8 +1,8 @@
 
 <template>
   <canvas
-    :width="width ?? 1000"
-    :height="height ?? 1000"
+    :width="width"
+    :height="height"
     ref="canvas"
     :class="`w-[${width}px] h-[${height}px]`"
   ></canvas>
@@ -28,24 +28,39 @@ const animation = {
   color: "#FF0000",
   loop: true,
 }
+const animation2 = {
+  ease: "linear",
+  duration: 20000,
+  scale: 5,
+  color: "#000000",
+}
 
 onMounted(() => {
   if (canvas.value) {
 
     const ctx = canvas.value.getContext('2d');
     if (ctx) {
-      animate(animation)((options) => {
+      const x = animate(animation)((options) => {
         drawShape(ctx).drawCircle(options);
       })({
         at: { x: 100, y: 100 },
         radius: 100,
-        color: "#0000FF"
+        color: "#0000FF",
+      });
+      const y = animate(animation2)((options) => {
+        drawShape(ctx).drawCircle(options);
+      })({
+        at: { x: 500, y: 200 },
+        radius: 20,
+        color: "#FFFFFF"
       });
 
       const drawLoop = setInterval(() => {
         ctx.clearRect(0, 0, canvas.value.width, canvas.value.height)
       }, 1000 / 60)
     }
+
   }
+
 });
 </script>
