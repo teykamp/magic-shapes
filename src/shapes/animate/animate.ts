@@ -38,6 +38,7 @@ export const animate = (animation: ShapeAnimation) => {
 
       const currentProgress = isReversing ? 1 - easedProgress : easedProgress
 
+      // circles only
       const newX = initialOptions.at.x + xOffset * currentProgress
       const newY = initialOptions.at.y + yOffset * currentProgress
       const newRadius = initialOptions.radius * (1 + (scale - 1) * currentProgress)
@@ -48,6 +49,8 @@ export const animate = (animation: ShapeAnimation) => {
         radius: newRadius,
         color: newColor,
       })
+
+      // end circles only
 
       if (progress < 1) {
         animationFrameId = requestAnimationFrame(animateFrame)
