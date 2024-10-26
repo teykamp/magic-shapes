@@ -1,8 +1,8 @@
 
 <template>
   <canvas
-    :width="width"
-    :height="height"
+    :width="width ?? 1000"
+    :height="height ?? 1000"
     ref="canvas"
     :class="`w-[${width}px] h-[${height}px]`"
   ></canvas>
@@ -13,7 +13,7 @@
 import { ref, onMounted } from 'vue';
 import { useWindowSize } from "@vueuse/core";
 import { drawShape } from './shapes/draw.ts';
-import { animate } from './shapes/animate/animate'
+import { animate } from './shapes/animate/animate.ts';
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 

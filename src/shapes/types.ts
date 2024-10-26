@@ -120,7 +120,8 @@ export const ANIMATION_DEFAULTS = {
   yOffset: 0,
   scale: 1,
   color: '#000000',
-  loop: false
+  loop: false,
+  rotation: 0
 }
 
 export type ShapeAnimation = Partial<{
@@ -131,4 +132,5 @@ export type ShapeAnimation = Partial<{
   scale: number
   color: string
   loop: boolean
+  rotation: number
 }>
