@@ -1,12 +1,11 @@
 import { ref } from 'vue'
 import type { ShapeAnimation } from '../types'
 import { ANIMATION_DEFAULTS } from '../types'
-import { 
-  hexToRgb, 
-  easeFunction, 
-  interpolateColor 
+import {
+  hexToRgb,
+  easeFunction,
+  interpolateColor
 } from '../helpers'
-
 
 export const animate = (animation: ShapeAnimation) => {
   const animationFrameId = ref<number | null>(null)
@@ -17,7 +16,7 @@ export const animate = (animation: ShapeAnimation) => {
   const lastElapsed = ref(0)
 
   return (drawFunction: (options: any) => void) => (initialOptions: any) => {
-    const startColor = hexToRgb(initialOptions.color)
+    const startColor = hexToRgb(initialOptions.color ?? '#000000')
     const endColor = animation.color ? hexToRgb(animation.color) : startColor
 
     const {
@@ -45,12 +44,22 @@ export const animate = (animation: ShapeAnimation) => {
       }
     }
 
-    const restartAnimation = () => {
+    const unpauseAnimation = () => {
       if (paused.value) {
         paused.value = false
         startTime.value = performance.now() - lastElapsed.value
         animationFrameId.value = requestAnimationFrame(animateFrame)
       }
+    }
+
+    const restartAnimation = () => {
+      paused.value = false
+      startTime.value = null
+      isReversing.value = false
+      lastElapsed.value = 0
+      pausedProgress.value = 0
+      stopAnimation()
+      animationFrameId.value = requestAnimationFrame(animateFrame)
     }
 
     const animateFrame = (timestamp: number) => {
@@ -61,7 +70,7 @@ export const animate = (animation: ShapeAnimation) => {
       if (startTime.value === null) startTime.value = timestamp
 
       const elapsed = timestamp - startTime.value
-      lastElapsed.value = elapsed 
+      lastElapsed.value = elapsed
       const progress = duration === 0 ? 1 : Math.min(elapsed / duration, 1)
       const easedProgress = easeFunction(progress, animation.ease)
 
@@ -99,6 +108,7 @@ export const animate = (animation: ShapeAnimation) => {
     return {
       stopAnimation,
       pauseAnimation,
+      unpauseAnimation,
       restartAnimation
     }
   }
