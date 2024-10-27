@@ -62,6 +62,17 @@ export const animate = (animation: ShapeAnimation) => {
       animationFrameId.value = requestAnimationFrame(animateFrame)
     }
 
+    const reverseAnimation = () => {
+      isReversing.value = !isReversing.value
+      const currentElapsed = lastElapsed.value
+      const currentProgress = currentElapsed / duration
+
+      startTime.value = performance.now() - (1 - currentProgress) * duration
+
+      stopAnimation() 
+      animationFrameId.value = requestAnimationFrame(animateFrame)
+    }
+
     const animateFrame = (timestamp: number) => {
       if (paused.value) {
         return
@@ -109,7 +120,8 @@ export const animate = (animation: ShapeAnimation) => {
       stopAnimation,
       pauseAnimation,
       unpauseAnimation,
-      restartAnimation
+      restartAnimation,
+      reverseAnimation,
     }
   }
 }
