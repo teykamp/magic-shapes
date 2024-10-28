@@ -13,9 +13,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useWindowSize } from "@vueuse/core";
-import { drawShape } from './shapes/draw.ts';
-import { animate } from './shapes/animate/animate.ts';
-import type { ShapeAnimation } from './shapes/types.js';
+import { drawShape } from './shapes/draw';
+import { animate } from './shapes/animate/animate';
+import type { ShapeAnimation } from './shapes/types';
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 
@@ -33,7 +33,7 @@ const animation: ShapeAnimation = {
 let animationControl
 
 const reverseee = () => {
-  animationControl.reverseAnimation()
+  animationControl.pauseAnimation()
 }
 
 onMounted(() => {
@@ -52,10 +52,7 @@ onMounted(() => {
       const drawLoop = setInterval(() => {
         ctx.clearRect(0, 0, canvas.value.width, canvas.value.height)
 
-          drawShape(ctx).drawCircle({
-            at: { x: 100, y: 100 },
-            radius: 100,
-          })
+          
       }, 1000 / 60)
     }
 

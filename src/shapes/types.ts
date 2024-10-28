@@ -125,7 +125,7 @@ export const ANIMATION_DEFAULTS = {
 }
 
 export type ShapeAnimation = Partial<{
-  ease: 'in-out' | 'linear' | 'in' | 'out'| (() => number)
+  ease: 'in-out' | 'linear' | 'in' | 'out'| ((timestamp: number) => number)
   duration: number
   xOffset: number
   yOffset: number

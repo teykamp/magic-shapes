@@ -15,20 +15,22 @@ export const animate = (animation: ShapeAnimation) => {
   const pausedProgress = ref(0)
   const lastElapsed = ref(0)
 
+  const {
+    duration,
+    xOffset,
+    yOffset,
+    scale,
+    loop, 
+    color
+  } = {
+    ...ANIMATION_DEFAULTS,
+    ...animation
+  }
+  
   return (drawFunction: (options: any) => void) => (initialOptions: any) => {
-    const startColor = hexToRgb(initialOptions.color ?? '#000000')
+    const startColor = hexToRgb(initialOptions.color ?? color)
     const endColor = animation.color ? hexToRgb(animation.color) : startColor
 
-    const {
-      duration,
-      xOffset,
-      yOffset,
-      scale,
-      loop
-    } = {
-      ...ANIMATION_DEFAULTS,
-      ...animation
-    }
 
     const stopAnimation = () => {
       if (animationFrameId.value !== null) {
