@@ -5,13 +5,15 @@ import type {
   Rectangle,
   Line,
   Arrow,
-  Triangle 
+  Triangle,
+  Coordinate
 } from '../types'
 import { ANIMATION_DEFAULTS } from '../types'
 import {
   hexToRgb,
   easeFunction,
-  interpolateColor
+  interpolateColor,
+  rotatePoint,
 } from '../helpers'
 
 export const animate = (animation: ShapeAnimation) => {
@@ -29,12 +31,13 @@ export const animate = (animation: ShapeAnimation) => {
     scale,
     loop,
     color,
+    rotation,
   } = {
     ...ANIMATION_DEFAULTS,
     ...animation
   }
 
-  const calculateFrameState = (initialOptions: Circle | Rectangle, progress: number) => {
+  const calculateFrameState = (initialOptions: Circle | Rectangle | Triangle, progress: number) => {
     const startColor = hexToRgb(initialOptions.color ?? color)
     const endColor = animation.color ? hexToRgb(animation.color) : startColor
     const newColor = interpolateColor(startColor, endColor, progress)
@@ -49,17 +52,51 @@ export const animate = (animation: ShapeAnimation) => {
         radius: newRadius,
         color: newColor,
       }
-    } else {
+    } else if ('width' in initialOptions && 'height' in initialOptions) {
       const newX = initialOptions.at.x + xOffset * progress
       const newY = initialOptions.at.y + yOffset * progress
       const newWidth = initialOptions.width * (1 + (scale - 1) * progress)
       const newHeight = initialOptions.height * (1 + (scale - 1) * progress)
-
+      
       return {
         at: { x: newX, y: newY },
         width: newWidth,
         height: newHeight,
         color: newColor,
+      }
+    } else {
+      const { point1, point2, point3 } = initialOptions
+
+      const initialCenter = {
+        x: (point1.x + point2.x + point3.x) / 3,
+        y: (point1.y + point2.y + point3.y) / 3
+      }
+
+      const offsetCenter = {
+        x: initialCenter.x + xOffset * progress,
+        y: initialCenter.y + yOffset * progress
+      }
+
+      const scaledPoint = (point: Coordinate) => ({
+        x: offsetCenter.x + (point.x - initialCenter.x) * (1 + (scale - 1) * progress),
+        y: offsetCenter.y + (point.y - initialCenter.y) * (1 + (scale - 1) * progress)
+      })
+
+      const newPoint1 = scaledPoint(point1)
+      const newPoint2 = scaledPoint(point2)
+      const newPoint3 = scaledPoint(point3)
+
+      const rotationAngle = rotation * progress
+      const rotatedPoint1 = rotatePoint(newPoint1, offsetCenter, rotationAngle)
+      const rotatedPoint2 = rotatePoint(newPoint2, offsetCenter, rotationAngle)
+      const rotatedPoint3 = rotatePoint(newPoint3, offsetCenter, rotationAngle)
+
+      return {
+        point1: rotatedPoint1,
+        point2: rotatedPoint2,
+        point3: rotatedPoint3,
+        color: newColor,
+        rotation: rotationAngle
       }
     }
   }

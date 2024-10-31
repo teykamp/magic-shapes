@@ -24,10 +24,12 @@ const { width, height } = useWindowSize();
 
 const animation: ShapeAnimation = {
   duration: 2000,
+  scale: 2,
   xOffset: 500,
   yOffset: 500,
-  scale: 5.5,
   loop: true,
+  rotation: 3,
+  color: '#F00F0F'
 }
 
 let animationControl: {
@@ -55,15 +57,16 @@ onMounted(() => {
       
       // this needs to be controlled like a shape. as in, you draw the shape normally, but this will interact with it and modify where it is being drawn, but it is the same shape...
       animationControl = animate(animation)((options) => {
-        drawShape(ctx).drawSquare(options)
+        drawShape(ctx).drawTriangle(options)
       })({
-        at: { x: 100, y: 100 },
-        width: 50,
-        height: 50
+        point1: {x: 100, y: 100},
+        point2: {x: 200, y: 200},
+        point3: {x: 150, y: 300},
+        color: '#FFF00F'
       })
 
       const drawLoop = setInterval(() => {
-        ctx.clearRect(0, 0, 1000, 1000)
+        ctx.clearRect(0, 0, 2000, 2000)
 
           
       }, 1000 / 60)
