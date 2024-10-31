@@ -1,5 +1,12 @@
 import { ref } from 'vue'
-import type { ShapeAnimation } from '../types'
+import type { 
+  ShapeAnimation, 
+  Circle,
+  Rectangle,
+  Line,
+  Arrow,
+  Triangle 
+} from '../types'
 import { ANIMATION_DEFAULTS } from '../types'
 import {
   hexToRgb,
@@ -27,20 +34,33 @@ export const animate = (animation: ShapeAnimation) => {
     ...animation
   }
 
-  // Separate function for calculating frame state based on current progress
-  const calculateFrameState = (initialOptions: any, progress: number) => {
+  const calculateFrameState = (initialOptions: Circle | Rectangle, progress: number) => {
     const startColor = hexToRgb(initialOptions.color ?? color)
     const endColor = animation.color ? hexToRgb(animation.color) : startColor
-
-    const newX = initialOptions.at.x + xOffset * progress
-    const newY = initialOptions.at.y + yOffset * progress
-    const newRadius = initialOptions.radius * (1 + (scale - 1) * progress)
     const newColor = interpolateColor(startColor, endColor, progress)
 
-    return {
-      at: { x: newX, y: newY },
-      radius: newRadius,
-      color: newColor,
+    if ('radius' in initialOptions) {
+      const newX = initialOptions.at.x + xOffset * progress
+      const newY = initialOptions.at.y + yOffset * progress
+      const newRadius = initialOptions.radius * (1 + (scale - 1) * progress)
+
+      return {
+        at: { x: newX, y: newY },
+        radius: newRadius,
+        color: newColor,
+      }
+    } else {
+      const newX = initialOptions.at.x + xOffset * progress
+      const newY = initialOptions.at.y + yOffset * progress
+      const newWidth = initialOptions.width * (1 + (scale - 1) * progress)
+      const newHeight = initialOptions.height * (1 + (scale - 1) * progress)
+
+      return {
+        at: { x: newX, y: newY },
+        width: newWidth,
+        height: newHeight,
+        color: newColor,
+      }
     }
   }
 

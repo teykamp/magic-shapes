@@ -26,7 +26,7 @@ const animation: ShapeAnimation = {
   duration: 2000,
   xOffset: 500,
   yOffset: 500,
-  scale: 1.5,
+  scale: 5.5,
   loop: true,
 }
 
@@ -55,10 +55,11 @@ onMounted(() => {
       
       // this needs to be controlled like a shape. as in, you draw the shape normally, but this will interact with it and modify where it is being drawn, but it is the same shape...
       animationControl = animate(animation)((options) => {
-        drawShape(ctx).drawCircle(options)
+        drawShape(ctx).drawSquare(options)
       })({
         at: { x: 100, y: 100 },
-        radius: 100,
+        width: 50,
+        height: 50
       })
 
       const drawLoop = setInterval(() => {
