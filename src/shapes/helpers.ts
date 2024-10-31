@@ -119,7 +119,7 @@ export const interpolateColor = (startColor: { r: number; g: number; b: number }
  * @returns rgb string
  */
 export const easeFunction = (progress: number, ease: ShapeAnimation['ease']) => {
-  if (typeof ease === "function") return ease()
+  if (typeof ease === "function") return ease(progress)
 
   switch (ease) {
     case 'linear':
