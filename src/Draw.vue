@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, type Ref } from 'vue';
 import { useWindowSize } from "@vueuse/core";
 import { drawShape } from './shapes/draw';
 import { animate } from './shapes/animate/animate';
@@ -27,13 +27,24 @@ const animation: ShapeAnimation = {
   xOffset: 500,
   yOffset: 500,
   scale: 1.5,
-  loop: true
+  loop: true,
 }
 
-let animationControl
+let animationControl: {
+  paused: Ref<boolean, boolean>;
+  lastElapsed: Ref<number, number>;
+  stopAnimation: () => void;
+  pauseAnimation: () => void;
+  unpauseAnimation: () => void;
+  restartAnimation: () => void;
+  reverseAnimation: () => void;
+}
 
 const reverseee = () => {
+  if (!animationControl.paused.value)
   animationControl.pauseAnimation()
+  else 
+  animationControl.unpauseAnimation()
 }
 
 onMounted(() => {
@@ -42,6 +53,7 @@ onMounted(() => {
     const ctx = canvas.value.getContext('2d');
     if (ctx) {
       
+      // this needs to be controlled like a shape. as in, you draw the shape normally, but this will interact with it and modify where it is being drawn, but it is the same shape...
       animationControl = animate(animation)((options) => {
         drawShape(ctx).drawCircle(options)
       })({
@@ -50,7 +62,7 @@ onMounted(() => {
       })
 
       const drawLoop = setInterval(() => {
-        ctx.clearRect(0, 0, canvas.value.width, canvas.value.height)
+        ctx.clearRect(0, 0, 1000, 1000)
 
           
       }, 1000 / 60)

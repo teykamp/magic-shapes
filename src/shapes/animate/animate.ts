@@ -20,17 +20,32 @@ export const animate = (animation: ShapeAnimation) => {
     xOffset,
     yOffset,
     scale,
-    loop, 
-    color
+    loop,
+    color,
   } = {
     ...ANIMATION_DEFAULTS,
     ...animation
   }
-  
-  return (drawFunction: (options: any) => void) => (initialOptions: any) => {
+
+  // Separate function for calculating frame state based on current progress
+  const calculateFrameState = (initialOptions: any, progress: number) => {
     const startColor = hexToRgb(initialOptions.color ?? color)
     const endColor = animation.color ? hexToRgb(animation.color) : startColor
 
+    const newX = initialOptions.at.x + xOffset * progress
+    const newY = initialOptions.at.y + yOffset * progress
+    const newRadius = initialOptions.radius * (1 + (scale - 1) * progress)
+    const newColor = interpolateColor(startColor, endColor, progress)
+
+    return {
+      at: { x: newX, y: newY },
+      radius: newRadius,
+      color: newColor,
+    }
+  }
+
+  return (drawFunction: (options: any) => void) => (initialOptions: any) => {
+    const frameState = ref<typeof initialOptions>(initialOptions)
 
     const stopAnimation = () => {
       if (animationFrameId.value !== null) {
@@ -42,7 +57,6 @@ export const animate = (animation: ShapeAnimation) => {
     const pauseAnimation = () => {
       if (animationFrameId.value !== null) {
         paused.value = true
-        stopAnimation()
       }
     }
 
@@ -68,15 +82,16 @@ export const animate = (animation: ShapeAnimation) => {
       isReversing.value = !isReversing.value
       const currentElapsed = lastElapsed.value
       const currentProgress = currentElapsed / duration
-
       startTime.value = performance.now() - (1 - currentProgress) * duration
 
-      stopAnimation() 
+      stopAnimation()
       animationFrameId.value = requestAnimationFrame(animateFrame)
     }
 
     const animateFrame = (timestamp: number) => {
       if (paused.value) {
+        drawFunction(frameState.value)
+        animationFrameId.value = requestAnimationFrame(animateFrame)
         return
       }
 
@@ -86,21 +101,12 @@ export const animate = (animation: ShapeAnimation) => {
       lastElapsed.value = elapsed
       const progress = duration === 0 ? 1 : Math.min(elapsed / duration, 1)
       const easedProgress = easeFunction(progress, animation.ease)
-
       const currentProgress = isReversing.value ? 1 - easedProgress : easedProgress
-
       pausedProgress.value = currentProgress
 
-      const newX = initialOptions.at.x + xOffset * currentProgress
-      const newY = initialOptions.at.y + yOffset * currentProgress
-      const newRadius = initialOptions.radius * (1 + (scale - 1) * currentProgress)
-      const newColor = interpolateColor(startColor, endColor, currentProgress)
+      frameState.value = calculateFrameState(initialOptions, currentProgress)
 
-      drawFunction({
-        at: { x: newX, y: newY },
-        radius: newRadius,
-        color: newColor,
-      })
+      drawFunction(frameState.value)
 
       if (progress < 1) {
         animationFrameId.value = requestAnimationFrame(animateFrame)
@@ -119,6 +125,9 @@ export const animate = (animation: ShapeAnimation) => {
     animationFrameId.value = requestAnimationFrame(animateFrame)
 
     return {
+      paused,
+      lastElapsed,
+
       stopAnimation,
       pauseAnimation,
       unpauseAnimation,
